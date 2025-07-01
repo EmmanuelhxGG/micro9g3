@@ -26,7 +26,11 @@ public class PedidoReabastecimientoService {
         return pedidoRepository.findAll();
     }
 
-    public PedidoReabastecimiento crearPedido(PedidoReabastecimiento pedido) {
+        public PedidoReabastecimiento crearPedido(PedidoReabastecimiento pedido) {
+        if (pedido == null || pedido.getProveedor() == null) {
+            return null;
+        }
+
         Optional<Proveedor> proveedorOpt = proveedorRepository.findById(pedido.getProveedor().getId());
         if (proveedorOpt.isEmpty()) {
             return null;
@@ -48,7 +52,8 @@ public class PedidoReabastecimientoService {
 
         PedidoReabastecimiento pedido = pedidoOpt.get();
         pedido.setEstadoPedidoReab(nuevoEstado);
-        if (autorizadoPor != null && autorizadoPor == Autorizacion.GERENTE) {
+
+        if (Autorizacion.GERENTE.equals(autorizadoPor)) {
             pedido.setAutorizadoPor("GERENTE");
         } else {
             pedido.setAutorizadoPor(null);

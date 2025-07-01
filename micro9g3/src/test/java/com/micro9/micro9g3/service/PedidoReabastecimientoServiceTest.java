@@ -1,8 +1,13 @@
 package com.micro9.micro9g3.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.micro9.micro9g3.model.*;
 import com.micro9.micro9g3.repository.PedidoReabastecimientoRepository;
 import com.micro9.micro9g3.repository.ProveedorRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -12,10 +17,6 @@ import org.mockito.MockitoAnnotations;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.assertThat;
 
 class PedidoReabastecimientoServiceTest {
 
@@ -35,93 +36,93 @@ class PedidoReabastecimientoServiceTest {
 
     @Test
     void testObtenerTodosLosPedidos() {
-        Proveedor proveedor = new Proveedor(2, "Proveedor Dos", "22.222.222-2", "Avenida Siempre Viva 742", "987654321", "proveedor2@correo.com", null);
-
-        PedidoReabastecimiento pedido1 = new PedidoReabastecimiento(5, "Polera", 15, 300, proveedor, LocalDate.now(), EstadoPedido.PENDIENTE, null);
-        PedidoReabastecimiento pedido2 = new PedidoReabastecimiento(6, "Cepillos", 8, 450, proveedor, LocalDate.now(), EstadoPedido.AUTORIZADO, "GERENTE");
-
-        when(pedidoRepository.findById(5)).thenReturn(Optional.of(pedido1));
-        when(pedidoRepository.findById(6)).thenReturn(Optional.of(pedido2));
+        Proveedor proveedor = new Proveedor(1, "Proveedor 1", "11.111.111-1", "Dirección 1", "123456789", "correo@proveedor.com", null);
+        PedidoReabastecimiento pedido1 = new PedidoReabastecimiento(1, "Producto A", 10, 1000, proveedor, LocalDate.now(), EstadoPedido.PENDIENTE, null);
+        PedidoReabastecimiento pedido2 = new PedidoReabastecimiento(2, "Producto B", 5, 500, proveedor, LocalDate.now(), EstadoPedido.AUTORIZADO, "GERENTE");
 
         when(pedidoRepository.findAll()).thenReturn(List.of(pedido1, pedido2));
 
-        List<PedidoReabastecimiento> resultado = pedidoService.obtenerTodosLosPedidos();
+        List<PedidoReabastecimiento> pedidos = pedidoService.obtenerTodosLosPedidos();
 
-        assertThat(resultado).hasSize(2);
-        assertThat(resultado.get(0).getNombreProducto()).isEqualTo("Polera");
-        assertThat(resultado.get(1).getEstadoPedidoReab()).isEqualTo(EstadoPedido.AUTORIZADO);
+        assertThat(pedidos).hasSize(2);
         verify(pedidoRepository).findAll();
     }
 
-    @Test
-    void testCrearPedido() {
-        Proveedor proveedor = new Proveedor(2, "Proveedor Dos", "22.222.222-2", "Avenida Siempre Viva 742", "987654321", "proveedor2@correo.com", null);
+        @Test
+void testCrearPedidoValido() {
+    Proveedor proveedor = new Proveedor(1, "Proveedor Valido", "11.111.111-1", "Calle Falsa 123", "123456789", "proveedor@correo.com", null);
 
+    PedidoReabastecimiento pedido = new PedidoReabastecimiento(
+        null,
+        "Producto Valido",
+        10,
+        1000,
+        proveedor,
+        null,
+        null,
+        null
+    );
+
+    PedidoReabastecimiento pedidoGuardado = new PedidoReabastecimiento(
+        1,
+        "Producto Valido",
+        10,
+        1000,
+        proveedor,
+        LocalDate.now(),
+        EstadoPedido.PENDIENTE,
+        null
+    );
+
+    when(proveedorRepository.findById(1)).thenReturn(Optional.of(proveedor));
+    when(pedidoRepository.save(any(PedidoReabastecimiento.class))).thenReturn(pedidoGuardado);
+
+    PedidoReabastecimiento resultado = pedidoService.crearPedido(pedido);
+
+    assertThat(resultado).isNotNull();
+    assertThat(resultado.getIdPedidoReab()).isEqualTo(1);
+    assertThat(resultado.getEstadoPedidoReab()).isEqualTo(EstadoPedido.PENDIENTE);
+    verify(proveedorRepository).findById(1);
+    verify(pedidoRepository).save(any(PedidoReabastecimiento.class));
+}
+
+    @Test
+    void testCrearPedidoConPedidoNull() {
+        PedidoReabastecimiento resultado = pedidoService.crearPedido(null);
+        assertThat(resultado).isNull();
+    }
+
+    @Test
+    void testCrearPedidoConProveedorNull() {
         PedidoReabastecimiento pedido = new PedidoReabastecimiento(
             null,
-            "Jabon",
-            5,
-            700,
-            proveedor,
+            "Producto X",
+            1,
+            100,
+            null,
             null,
             null,
             null
         );
-
-        PedidoReabastecimiento pedidoGuardado = new PedidoReabastecimiento(
-            3,
-            "Jabon",
-            5,
-            700,
-            proveedor,
-            LocalDate.now(),
-            EstadoPedido.PENDIENTE,
-            null
-        );
-
-        when(proveedorRepository.findById(2)).thenReturn(Optional.of(proveedor));
-        when(pedidoRepository.save(any(PedidoReabastecimiento.class))).thenReturn(pedidoGuardado);
-
         PedidoReabastecimiento resultado = pedidoService.crearPedido(pedido);
-
-        assertThat(resultado.getIdPedidoReab()).isEqualTo(3);
-        assertThat(resultado.getEstadoPedidoReab()).isEqualTo(EstadoPedido.PENDIENTE);
-        verify(pedidoRepository).save(any(PedidoReabastecimiento.class));
+        assertThat(resultado).isNull();
     }
 
     @Test
     void testActualizarEstadoPedido() {
-        Proveedor proveedor = new Proveedor(2, "Proveedor Dos", "22.222.222-2", "Avenida Siempre Viva 742", "987654321", "proveedor2@correo.com", null);
+        Proveedor proveedor = new Proveedor(1, "Proveedor 1", "11.111.111-1", "Dirección 1", "123456789", "correo@proveedor.com", null);
+        PedidoReabastecimiento pedidoExistente = new PedidoReabastecimiento(1, "Producto A", 10, 1000, proveedor, LocalDate.now(), EstadoPedido.PENDIENTE, null);
+        PedidoReabastecimiento pedidoActualizado = new PedidoReabastecimiento(1, "Producto A", 10, 1000, proveedor, LocalDate.now(), EstadoPedido.AUTORIZADO, "GERENTE");
 
-        PedidoReabastecimiento pedidoExistente = new PedidoReabastecimiento(
-            4,
-            "Bolsa ecológica",
-            12,
-            1200,
-            proveedor,
-            LocalDate.now(),
-            EstadoPedido.PENDIENTE,
-            null
-        );
+        when(pedidoRepository.findById(1)).thenReturn(Optional.of(pedidoExistente));
+        when(pedidoRepository.save(any())).thenReturn(pedidoActualizado);
 
-        PedidoReabastecimiento pedidoActualizado = new PedidoReabastecimiento(
-            4,
-            "Bolsa ecológica",
-            12,
-            1200,
-            proveedor,
-            LocalDate.now(),
-            EstadoPedido.AUTORIZADO,
-            "GERENTE"
-        );
-
-        when(pedidoRepository.findById(4)).thenReturn(Optional.of(pedidoExistente));
-        when(pedidoRepository.save(any(PedidoReabastecimiento.class))).thenReturn(pedidoActualizado);
-
-        PedidoReabastecimiento resultado = pedidoService.actualizarEstadoPedido(4, EstadoPedido.AUTORIZADO, Autorizacion.GERENTE);
+        PedidoReabastecimiento resultado = pedidoService.actualizarEstadoPedido(1, EstadoPedido.AUTORIZADO, Autorizacion.GERENTE);
 
         assertThat(resultado.getEstadoPedidoReab()).isEqualTo(EstadoPedido.AUTORIZADO);
         assertThat(resultado.getAutorizadoPor()).isEqualTo("GERENTE");
-        verify(pedidoRepository).save(any(PedidoReabastecimiento.class));
+        verify(pedidoRepository).findById(1);
+        verify(pedidoRepository).save(any());
     }
+
 }
