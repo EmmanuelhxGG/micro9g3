@@ -122,9 +122,8 @@ class PedidoReabastecimientoControllerTest {
     void testActualizarAutorizacion_conAutorizadoPorOtroRol() throws Exception {
         PedidoReabastecimiento pedidoEntrada = crearPedidoEjemplo(1);
         pedidoEntrada.setEstadoPedidoReab(EstadoPedido.AUTORIZADO);
-        pedidoEntrada.setAutorizadoPor("SUPERVISOR"); // otro rol
+        pedidoEntrada.setAutorizadoPor("SUPERVISOR");
 
-        // no importa el mock porque el controller nunca llega a llamar el servicio
         mockMvc.perform(put("/api/pedidos/autorizacion")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pedidoEntrada)))
