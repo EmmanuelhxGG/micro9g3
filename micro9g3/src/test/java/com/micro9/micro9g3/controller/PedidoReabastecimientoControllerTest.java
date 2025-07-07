@@ -38,7 +38,7 @@ class PedidoReabastecimientoControllerTest {
         PedidoReabastecimiento p1 = crearPedidoEjemplo(1);
         PedidoReabastecimiento p2 = crearPedidoEjemplo(2);
 
-        Mockito.when(pedidoService.obtenerTodosLosPedidos()).thenReturn(List.of(p1, p2));
+        Mockito.when(pedidoService.ListarPedidos()).thenReturn(List.of(p1, p2));
 
         mockMvc.perform(get("/api/pedidos"))
                 .andExpect(status().isOk())
@@ -48,7 +48,7 @@ class PedidoReabastecimientoControllerTest {
 
     @Test
     void testObtenerTodosPedidos_sinResultados() throws Exception {
-        Mockito.when(pedidoService.obtenerTodosLosPedidos()).thenReturn(List.of());
+        Mockito.when(pedidoService.ListarPedidos()).thenReturn(List.of());
 
         mockMvc.perform(get("/api/pedidos"))
                 .andExpect(status().isNoContent());

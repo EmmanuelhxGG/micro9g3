@@ -42,7 +42,7 @@ class PedidoReabastecimientoServiceTest {
 
         when(pedidoRepository.findAll()).thenReturn(List.of(pedido1, pedido2));
 
-        List<PedidoReabastecimiento> pedidos = pedidoService.obtenerTodosLosPedidos();
+        List<PedidoReabastecimiento> pedidos = pedidoService.ListarPedidos();
 
         assertThat(pedidos).hasSize(2);
         verify(pedidoRepository).findAll();

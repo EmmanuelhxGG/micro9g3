@@ -20,7 +20,7 @@ public class PedidoReabastecimientoController {
 
     @GetMapping 
     public ResponseEntity<List<PedidoReabastecimiento>> obtenerTodosLosPedidos() {
-        List<PedidoReabastecimiento> pedidos = pedidoService.obtenerTodosLosPedidos();
+        List<PedidoReabastecimiento> pedidos = pedidoService.ListarPedidos();
         if (pedidos.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }

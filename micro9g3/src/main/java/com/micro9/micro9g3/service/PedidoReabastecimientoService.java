@@ -22,7 +22,7 @@ public class PedidoReabastecimientoService {
     @Autowired
     private ProveedorRepository proveedorRepository;
 
-    public List<PedidoReabastecimiento> obtenerTodosLosPedidos() {
+    public List<PedidoReabastecimiento> ListarPedidos() {
         return pedidoRepository.findAll();
     }
 
